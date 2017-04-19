@@ -120,17 +120,40 @@ namespace ec2search
 				iph = GETHOST(final[i].ToString(), hosts_list).ip;
 				pemh = GETHOST(final[i].ToString(), hosts_list).pem;
 
-				if (i % 2 == 0)
+				 if (i == 0)
 				{
 					hsplit();
-					//Move();
 					ssh(pemh,iph);
+
+					if (final.Count > 1){vsplit();}  //DONE
 				}
-				else
+			         if (i == 1)
 				{
-					vsplit();
-					//Move();
-					ssh(pemh,iph);
+					ssh(pemh, iph);
+					if (final.Count > 2){MoveR();}  //DONE
+				}
+			         if(i == 2)
+				{
+					
+					ssh(pemh, iph);
+
+					if (final.Count > 3) { vsplit();} //DONE
+
+				}
+				 if (i == 3)
+				{
+					ssh(pemh, iph);
+					if (final.Count > 4) { vsplit(); } //DONE
+				}
+				 if (i == 4)
+				{
+					
+					ssh(pemh, iph); //DONE
+					if (final.Count > 5) { MoveR(); vsplit(); } //DONE
+				}
+			         if (i == 5)
+				{
+					ssh(pemh, iph);
 				}
 			}
 
@@ -189,9 +212,15 @@ namespace ec2search
 			string script = @"tell application ""System Events"" to keystroke ""d"" using command down";
 			MonoDevelop.MacInterop.AppleScript.Run(script);
 		}
-		public static void Move()
+		public static void MoveR()
 		{
 			string script = @"tell application ""System Events"" to keystroke ""]"" using command down";
+			MonoDevelop.MacInterop.AppleScript.Run(script);
+
+		}
+		public static void MoveL()
+		{
+			string script = @"tell application ""System Events"" to keystroke ""["" using command down";
 
 			MonoDevelop.MacInterop.AppleScript.Run(script);
 
