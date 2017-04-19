@@ -20,7 +20,8 @@ namespace ec2search
 	{
 		public static void Main(string[] args)
 		{
-			string profile = string.Empty, filterx = string.Empty;
+			string profile = string.Empty, filterx = string.Empty, key=string.Empty, sec = string.Empty;
+			AmazonEC2Client client = null;
 			List<chost> hosts = new List<chost>();
 			Console.BackgroundColor = ConsoleColor.Blue;
 			Console.ForegroundColor = ConsoleColor.White;
@@ -34,9 +35,28 @@ namespace ec2search
 					filterx = "*";
 			}
 
-			string key = GetProfile(profile)[0];
-			string sec = GetProfile(profile)[1];
-			AmazonEC2Client client = new AmazonEC2Client(key, sec);
+
+			if (GetProfile(profile) != null)
+			{
+				 key = GetProfile(profile)[0];
+				 sec = GetProfile(profile)[1];
+			}
+			else
+			{
+				Console.WriteLine("Invalid, or no existent AWS Profile -->"+profile);
+				Environment.Exit(1);
+			}
+
+			try
+			{
+			       client = new AmazonEC2Client(key, sec);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine("Invalid Key/Secret "+ex.Message);
+				Environment.Exit(1);
+			}
+
 
 			var request = new DescribeInstancesRequest()
 			{
@@ -109,28 +129,29 @@ namespace ec2search
 			Console.BackgroundColor = ConsoleColor.Black;
 			Console.ForegroundColor = ConsoleColor.White;
 			final.AddRange(selection.Split(','));
-			string iph, pemh;
+			string iph, pemh, nameh;
 			for (int i = 0; i < final.Count; i++)
 			{
 				iph = GETHOST(final[i].ToString(), hosts_list).ip;
 				pemh = GETHOST(final[i].ToString(), hosts_list).pem;
+				nameh = GETHOST(final[i].ToString(), hosts_list).hostname;
 
 				 if (i == 0)
 				{
 					hsplit();
-					ssh(pemh,iph);
+					ssh(pemh,iph,nameh);
 
 					if (final.Count > 1){vsplit();}  //DONE
 				}
 			         if (i == 1)
 				{
-					ssh(pemh, iph);
+					ssh(pemh, iph,nameh);
 					if (final.Count > 2){MoveR(); CloseSession();}  //DONE
 				}
 			         if(i == 2)
 				{
 					hsplit();
-					ssh(pemh, iph);
+					ssh(pemh, iph,nameh);
 
 					if (final.Count > 3) { MoveR();} //DONE
 
@@ -138,18 +159,18 @@ namespace ec2search
 				 if (i == 3)
 				{
 					hsplit();
-					ssh(pemh, iph);
+					ssh(pemh, iph,nameh);
 					if (final.Count > 4) { hsplit(); } //DONE
 				}
 				 if (i == 4)
 				{
 					MoveR();
-					ssh(pemh, iph); //DONE
+					ssh(pemh, iph,nameh); //DONE
 					if (final.Count > 5) { MoveR(); hsplit(); } //DONE
 				}
 			         if (i == 5)
 				{
-					ssh(pemh, iph);
+					ssh(pemh, iph,nameh);
 				}
 			}
 
@@ -187,17 +208,19 @@ namespace ec2search
 			}
 			return aux;
 		}
-		public static void ssh (string pem, string ip)
+		public static void ssh (string pem, string ip, string name)
 		{
 			string script = @"
 			tell application ""iTerm2""
                            activate
 			     tell current session of current window
+                                write text ""clear""
+                                write text ""echo 'Session to *****{3}*****'""
                                 write text ""ssh -i /Users/{0}/.ssh/{1}.pem ubuntu@{2}""
                              end tell
                         end tell";
 
-			MonoDevelop.MacInterop.AppleScript.Run(string.Format(script, Environment.UserName, pem, ip));
+			MonoDevelop.MacInterop.AppleScript.Run(string.Format(script, Environment.UserName, pem, ip,name));
 
 		}
 		public static void hsplit()
