@@ -21,16 +21,6 @@ namespace ec2search
 			this.ec2type = ec2type;
 			this.count = count;
 		}
-		public bool ssh()
-		{
-			try
-			{
-				//string script = string.Format("tell application \"System Events\" to keystroke \"ssh -i /Users/{0}/.ssh/{1}.pem ubuntu@{2}\"",Environment.UserName, pem, ip);
-				string script = string.Format("tell application \"System Events\" to keystroke \"ssh -i /Users/rnovo/.ssh/cc_shared.pem ubuntu@10.0.16.166\"");
-				MonoDevelop.MacInterop.AppleScript.Run(script);
-			}
-			catch { return false;  }
-			return true;
-		}
+
 	}
 }

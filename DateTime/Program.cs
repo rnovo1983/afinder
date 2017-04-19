@@ -114,25 +114,23 @@ namespace ec2search
 			Console.BackgroundColor = ConsoleColor.Black;
 			Console.ForegroundColor = ConsoleColor.White;
 			final.AddRange(selection.Split(','));
-
+			string iph, pemh;
 			for (int i = 0; i < final.Count; i++)
 			{
-				Console.Write(final[i].ToString());
-				string script = "tell application \"System Events\" to keystroke \"ssh -i /Users/rnovo/.ssh/cc_shared.pem ubuntu@10.0.16.166\"";
-				MonoDevelop.MacInterop.AppleScript.Run(script);
+				iph = GETHOST(final[i].ToString(), hosts_list).ip;
+				pemh = GETHOST(final[i].ToString(), hosts_list).pem;
 
-				Console.WriteLine(GETHOST(final[i].ToString(), hosts_list).ssh().ToString());
 				if (i % 2 == 0)
 				{
 					hsplit();
-					Move();
-
+					//Move();
+					ssh(pemh,iph);
 				}
 				else
 				{
 					vsplit();
-					Move();
-
+					//Move();
+					ssh(pemh,iph);
 				}
 			}
 
@@ -170,6 +168,16 @@ namespace ec2search
 			}
 			return aux;
 		}
+		public static void ssh (string pem, string ip)
+		{
+			string script = @"tell application ""System Events""
+			keystroke ""ssh -i /Users/{0}/.ssh/{1}.pem ubuntu@{2}"" 
+			key code 36
+			end tell";
+
+			MonoDevelop.MacInterop.AppleScript.Run(string.Format(script, Environment.UserName, pem, ip));
+
+		}
 		public static void hsplit()
 		{
 			string script = @"tell application ""System Events"" to keystroke ""d"" using {command down, shift down}";
@@ -178,12 +186,12 @@ namespace ec2search
 		}
 		public static void vsplit()
 		{
-			string script = "tell application \"System Events\" to keystroke \"d\" using command down";
+			string script = @"tell application ""System Events"" to keystroke ""d"" using command down";
 			MonoDevelop.MacInterop.AppleScript.Run(script);
 		}
 		public static void Move()
 		{
-			string script = "tell application \"System Events\" to keystroke \"]\" using command down";
+			string script = @"tell application ""System Events"" to keystroke ""]"" using command down";
 
 			MonoDevelop.MacInterop.AppleScript.Run(script);
 
