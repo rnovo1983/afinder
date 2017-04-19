@@ -34,10 +34,8 @@ namespace ec2search
 					filterx = "*";
 			}
 
-
 			string key = GetProfile(profile)[0];
 			string sec = GetProfile(profile)[1];
-
 			AmazonEC2Client client = new AmazonEC2Client(key, sec);
 
 			var request = new DescribeInstancesRequest()
@@ -55,8 +53,6 @@ namespace ec2search
 		       }
 			};
 			var response = client.DescribeInstances(request);
-
-
 			int c = 0;
 			string id = string.Empty, name = string.Empty, type = string.Empty, state = string.Empty, privip = string.Empty, keyname = string.Empty;
 			List<string[]> resultsX = new List<string[]>();
@@ -66,7 +62,6 @@ namespace ec2search
 			{
 				try
 				{
-
 					if (filterx != "*")
 					{
 						if (ec2instace.RunningInstance[0].Tag.Find((obj) => obj.Key.Contains("Name")).Value.Contains(filterx))
@@ -130,26 +125,27 @@ namespace ec2search
 			         if (i == 1)
 				{
 					ssh(pemh, iph);
-					if (final.Count > 2){MoveR();}  //DONE
+					if (final.Count > 2){MoveR(); CloseSession();}  //DONE
 				}
 			         if(i == 2)
 				{
-					
+					hsplit();
 					ssh(pemh, iph);
 
-					if (final.Count > 3) { vsplit();} //DONE
+					if (final.Count > 3) { MoveR();} //DONE
 
 				}
 				 if (i == 3)
 				{
+					hsplit();
 					ssh(pemh, iph);
-					if (final.Count > 4) { vsplit(); } //DONE
+					if (final.Count > 4) { hsplit(); } //DONE
 				}
 				 if (i == 4)
 				{
-					
+					MoveR();
 					ssh(pemh, iph); //DONE
-					if (final.Count > 5) { MoveR(); vsplit(); } //DONE
+					if (final.Count > 5) { MoveR(); hsplit(); } //DONE
 				}
 			         if (i == 5)
 				{
@@ -193,10 +189,13 @@ namespace ec2search
 		}
 		public static void ssh (string pem, string ip)
 		{
-			string script = @"tell application ""System Events""
-			keystroke ""ssh -i /Users/{0}/.ssh/{1}.pem ubuntu@{2}"" 
-			key code 36
-			end tell";
+			string script = @"
+			tell application ""iTerm2""
+                           activate
+			     tell current session of current window
+                                write text ""ssh -i /Users/{0}/.ssh/{1}.pem ubuntu@{2}""
+                             end tell
+                        end tell";
 
 			MonoDevelop.MacInterop.AppleScript.Run(string.Format(script, Environment.UserName, pem, ip));
 
@@ -215,6 +214,19 @@ namespace ec2search
 		public static void MoveR()
 		{
 			string script = @"tell application ""System Events"" to keystroke ""]"" using command down";
+			MonoDevelop.MacInterop.AppleScript.Run(script);
+
+		}
+		public static void CloseSession()
+		{
+			string script = @"
+			tell application ""iTerm2""
+                           activate
+			     tell current session of current window
+                               close
+                             end tell
+                        end tell";
+
 			MonoDevelop.MacInterop.AppleScript.Run(script);
 
 		}
